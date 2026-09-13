@@ -1,0 +1,511 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "clhhhhhh/moonbit-slotplan"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn batch_policies() -> Array[BatchPolicy]
+
+pub fn layout_timeline(Array[TimelineEvent]) -> Result[TimelineLayout, TimelineError]
+
+pub fn placement_strategies() -> Array[PlacementStrategy]
+
+pub fn resolve_availability(AvailabilityOverlay) -> ResolvedAvailability
+
+pub fn resource_from_weekly_template(String, Int, WeeklyTemplate, Int, Interval) -> Result[ResourceCalendar, WeeklyResourceError]
+
+pub fn resource_with_weekly_overlay(String, Int, WeeklyTemplate, Int, Interval, Array[Interval], Array[Interval]) -> Result[ResourceCalendar, WeeklyResourceError]
+
+pub fn utilization_band(Int) -> UtilizationBand
+
+pub fn weekdays() -> Array[Weekday]
+
+// Errors
+
+// Types and methods
+pub struct Allocation {
+  request_id : String
+  event : Interval
+  reserved : Interval
+  resource_ids : Array[String]
+} derive(@debug.Debug)
+pub fn Allocation::event(Self) -> Interval
+pub fn Allocation::render(Self) -> String
+pub fn Allocation::request_id(Self) -> String
+pub fn Allocation::reserved(Self) -> Interval
+pub fn Allocation::resource_ids(Self) -> Array[String]
+
+pub struct AvailabilityOverlay {
+  baseline : IntervalSet
+  openings : IntervalSet
+  closures : IntervalSet
+} derive(@debug.Debug)
+pub fn AvailabilityOverlay::baseline(Self) -> IntervalSet
+pub fn AvailabilityOverlay::close(Self, Interval) -> Self
+pub fn AvailabilityOverlay::close_many(Self, Array[Interval]) -> Self
+pub fn AvailabilityOverlay::closures(Self) -> IntervalSet
+pub fn AvailabilityOverlay::explain(Self, Int) -> String
+pub fn AvailabilityOverlay::is_open(Self, Int) -> Bool
+pub fn AvailabilityOverlay::new(IntervalSet) -> Self
+pub fn AvailabilityOverlay::open(Self, Interval) -> Self
+pub fn AvailabilityOverlay::open_many(Self, Array[Interval]) -> Self
+pub fn AvailabilityOverlay::openings(Self) -> IntervalSet
+pub fn AvailabilityOverlay::resolve(Self) -> IntervalSet
+pub fn AvailabilityOverlay::resolve_within(Self, Interval) -> IntervalSet
+
+pub enum BatchError {
+  DuplicateBatchKey(String)
+  ItemFailure(key~ : String, error~ : PlanError)
+} derive(Eq, @debug.Debug)
+pub fn BatchError::render(Self) -> String
+
+pub struct BatchItem {
+  key : String
+  request : BookingRequest
+  priority : Int
+} derive(@debug.Debug)
+pub fn BatchItem::key(Self) -> String
+pub fn BatchItem::new(String, BookingRequest, priority? : Int) -> Result[Self, BatchItemError]
+pub fn BatchItem::priority(Self) -> Int
+pub fn BatchItem::request(Self) -> BookingRequest
+
+pub enum BatchItemError {
+  EmptyBatchKey
+} derive(Eq, @debug.Debug)
+
+pub struct BatchOutcome {
+  key : String
+  request_id : String
+  status : BatchStatus
+} derive(@debug.Debug)
+pub fn BatchOutcome::key(Self) -> String
+pub fn BatchOutcome::request_id(Self) -> String
+pub fn BatchOutcome::status(Self) -> BatchStatus
+
+pub struct BatchPlan {
+  outcomes : Array[BatchOutcome]
+  planner : Planner
+  policy : BatchPolicy
+} derive(@debug.Debug)
+pub fn BatchPlan::outcomes(Self) -> Array[BatchOutcome]
+pub fn BatchPlan::planner(Self) -> Planner
+pub fn BatchPlan::policy(Self) -> BatchPolicy
+pub fn BatchPlan::rejected_count(Self) -> Int
+pub fn BatchPlan::scheduled_count(Self) -> Int
+pub fn BatchPlan::summary(Self) -> String
+
+pub enum BatchPolicy {
+  InputOrder
+  PriorityThenEarliest
+  ShortestJobFirst
+} derive(Eq, @debug.Debug)
+pub fn BatchPolicy::render(Self) -> String
+
+pub enum BatchStatus {
+  Scheduled(Allocation)
+  Rejected(PlanError)
+} derive(@debug.Debug)
+pub fn BatchStatus::is_scheduled(Self) -> Bool
+pub fn BatchStatus::render(Self) -> String
+
+pub struct BookingLedger {
+  planner : Planner
+  records : Array[BookingRecord]
+  events : Array[LedgerEvent]
+} derive(@debug.Debug)
+pub fn BookingLedger::active_records(Self) -> Array[BookingRecord]
+pub fn BookingLedger::book(Self, String, BookingRequest) -> Result[LedgerChange, LedgerError]
+pub fn BookingLedger::cancel(Self, String) -> Result[LedgerChange, LedgerError]
+pub fn BookingLedger::events(Self) -> Array[LedgerEvent]
+pub fn BookingLedger::new(Planner) -> Self
+pub fn BookingLedger::planner(Self) -> Planner
+pub fn BookingLedger::records(Self) -> Array[BookingRecord]
+pub fn BookingLedger::reschedule(Self, String, BookingRequest) -> Result[LedgerChange, LedgerError]
+
+pub struct BookingRecord {
+  booking_id : String
+  allocation : Allocation
+  state : BookingState
+} derive(@debug.Debug)
+pub fn BookingRecord::allocation(Self) -> Allocation
+pub fn BookingRecord::booking_id(Self) -> String
+pub fn BookingRecord::is_active(Self) -> Bool
+pub fn BookingRecord::render(Self) -> String
+pub fn BookingRecord::state(Self) -> BookingState
+
+pub struct BookingRequest {
+  id : String
+  duration : Int
+  horizon : Interval
+  capacity_needed : Int
+  buffer_before : Int
+  buffer_after : Int
+  required_resources : Array[String]
+} derive(@debug.Debug)
+pub fn BookingRequest::capacity_needed(Self) -> Int
+pub fn BookingRequest::duration(Self) -> Int
+pub fn BookingRequest::event_from_reserved(Self, Interval) -> Interval
+pub fn BookingRequest::horizon(Self) -> Interval
+pub fn BookingRequest::id(Self) -> String
+pub fn BookingRequest::new(String, Int, Interval, capacity_needed? : Int, buffer_before? : Int, buffer_after? : Int, required_resources? : Array[String]) -> Result[Self, RequestError]
+pub fn BookingRequest::render(Self) -> String
+pub fn BookingRequest::required_resources(Self) -> Array[String]
+pub fn BookingRequest::reserved_duration(Self) -> Int
+
+pub enum BookingState {
+  Active
+  Cancelled
+} derive(Eq, @debug.Debug)
+pub fn BookingState::render(Self) -> String
+
+pub struct ConcurrencySegment {
+  interval : Interval
+  count : Int
+} derive(@debug.Debug)
+pub fn ConcurrencySegment::count(Self) -> Int
+pub fn ConcurrencySegment::interval(Self) -> Interval
+
+pub struct ConflictPair {
+  first : TimelineEvent
+  second : TimelineEvent
+  overlap : Interval
+} derive(@debug.Debug)
+pub fn ConflictPair::first(Self) -> TimelineEvent
+pub fn ConflictPair::overlap(Self) -> Interval
+pub fn ConflictPair::second(Self) -> TimelineEvent
+
+pub struct FlexibleRequest {
+  request : BookingRequest
+  alternatives : Array[Array[String]]
+} derive(@debug.Debug)
+pub fn FlexibleRequest::alternatives(Self) -> Array[Array[String]]
+pub fn FlexibleRequest::new(BookingRequest, Array[Array[String]]) -> Result[Self, FlexibleRequestError]
+pub fn FlexibleRequest::render(Self) -> String
+pub fn FlexibleRequest::request(Self) -> BookingRequest
+
+pub enum FlexibleRequestError {
+  NoAlternatives
+  EmptyAlternative(Int)
+  EmptyResourceId(Int, Int)
+  DuplicateResourceInAlternative(Int, String)
+} derive(Eq, @debug.Debug)
+
+pub struct Interval {
+  start : Int
+  end : Int
+} derive(Compare, Eq, @debug.Debug)
+pub fn Interval::compare_start(Self, Self) -> Int
+pub fn Interval::contains(Self, Int) -> Bool
+pub fn Interval::contains_interval(Self, Self) -> Bool
+pub fn Interval::duration(Self) -> Int
+pub fn Interval::end(Self) -> Int
+pub fn Interval::intersect(Self, Self) -> Self?
+pub fn Interval::merge(Self, Self) -> Self?
+pub fn Interval::new(Int, Int) -> Result[Self, IntervalError]
+pub fn Interval::overlaps(Self, Self) -> Bool
+pub fn Interval::render(Self) -> String
+pub fn Interval::shift(Self, Int) -> Self
+pub fn Interval::start(Self) -> Int
+pub fn Interval::touches(Self, Self) -> Bool
+pub fn Interval::with_duration(Int, Int) -> Result[Self, IntervalError]
+
+pub enum IntervalError {
+  EmptyOrReversedRange(start~ : Int, end~ : Int)
+  InvalidWindow(start~ : Int, end~ : Int)
+} derive(Eq, @debug.Debug)
+
+pub struct IntervalSet {
+  ranges : Array[Interval]
+} derive(@debug.Debug)
+pub fn IntervalSet::add(Self, Interval) -> Self
+pub fn IntervalSet::contains(Self, Int) -> Bool
+pub fn IntervalSet::empty() -> Self
+pub fn IntervalSet::first_fit(Self, Int, Int) -> Interval?
+pub fn IntervalSet::from_ranges(Array[Interval]) -> Self
+pub fn IntervalSet::intersect(Self, Self) -> Self
+pub fn IntervalSet::is_empty(Self) -> Bool
+pub fn IntervalSet::length(Self) -> Int
+pub fn IntervalSet::longest_duration(Self) -> Int
+pub fn IntervalSet::ranges(Self) -> Array[Interval]
+pub fn IntervalSet::render(Self) -> String
+pub fn IntervalSet::subtract(Self, Self) -> Self
+pub fn IntervalSet::total_duration(Self) -> Int
+pub fn IntervalSet::union(Self, Self) -> Self
+pub fn IntervalSet::within(Self, Interval) -> Self
+
+pub struct LedgerChange {
+  ledger : BookingLedger
+  record : BookingRecord
+} derive(@debug.Debug)
+pub fn LedgerChange::ledger(Self) -> BookingLedger
+pub fn LedgerChange::record(Self) -> BookingRecord
+
+pub enum LedgerError {
+  EmptyBookingId
+  DuplicateBookingId(String)
+  UnknownBookingId(String)
+  BookingNotActive(String)
+  SchedulingFailed(PlanError)
+} derive(Eq, @debug.Debug)
+pub fn LedgerError::render(Self) -> String
+
+pub struct LedgerEvent {
+  sequence : Int
+  booking_id : String
+  kind : LedgerEventKind
+} derive(@debug.Debug)
+pub fn LedgerEvent::booking_id(Self) -> String
+pub fn LedgerEvent::kind(Self) -> LedgerEventKind
+pub fn LedgerEvent::sequence(Self) -> Int
+
+pub enum LedgerEventKind {
+  Created(Allocation)
+  Cancelled(Allocation)
+  Rescheduled(previous~ : Allocation, replacement~ : Allocation)
+} derive(@debug.Debug)
+
+pub enum OverlayResourceError {
+  EmptyResolvedAvailability
+  ExistingReservationOutsideAvailability(Interval)
+} derive(Eq, @debug.Debug)
+
+pub enum PlacementStrategy {
+  Earliest
+  Latest
+  MinimizeFragmentation
+} derive(Eq, @debug.Debug)
+pub fn PlacementStrategy::render(Self) -> String
+
+pub enum PlanError {
+  DuplicateResourceId(String)
+  UnknownResource(String)
+  InsufficientCapacity(Int)
+  NoFeasibleSlot(String)
+  CannotReserve(String)
+  CannotRelease(String)
+} derive(Eq, @debug.Debug)
+pub fn PlanError::render(Self) -> String
+
+pub struct Planner {
+  resources : Array[ResourceCalendar]
+} derive(@debug.Debug)
+pub fn Planner::cancel(Self, Allocation) -> Result[Self, PlanError]
+pub fn Planner::explain_unavailability(Self, BookingRequest) -> String
+pub fn Planner::find_earliest(Self, BookingRequest) -> Result[Allocation, PlanError]
+pub fn Planner::find_flexible_earliest(Self, FlexibleRequest) -> Result[Allocation, PlanError]
+pub fn Planner::new(Array[ResourceCalendar]) -> Result[Self, PlanError]
+pub fn Planner::report(Self, Interval) -> PlannerReport
+pub fn Planner::reschedule(Self, Allocation, BookingRequest) -> Result[RescheduleResult, PlanError]
+pub fn Planner::reserve_earliest(Self, BookingRequest) -> Result[Reservation, PlanError]
+pub fn Planner::reserve_flexible_earliest(Self, FlexibleRequest) -> Result[Reservation, PlanError]
+pub fn Planner::resources(Self) -> Array[ResourceCalendar]
+pub fn Planner::schedule_batch(Self, Array[BatchItem], policy? : BatchPolicy) -> Result[BatchPlan, BatchError]
+pub fn Planner::schedule_batch_atomically(Self, Array[BatchItem], policy? : BatchPolicy) -> Result[BatchPlan, BatchError]
+pub fn Planner::suggest(Self, BookingRequest, strategy? : PlacementStrategy, limit? : Int) -> Result[Array[Suggestion], PlanError]
+
+pub struct PlannerReport {
+  horizon : Interval
+  resources : Array[ResourceReport]
+  available_minutes : Int
+  occupied_minutes : Int
+  free_minutes : Int
+} derive(@debug.Debug)
+pub fn PlannerReport::available_minutes(Self) -> Int
+pub fn PlannerReport::bottlenecks(Self, Int) -> Array[ResourceReport]
+pub fn PlannerReport::free_minutes(Self) -> Int
+pub fn PlannerReport::horizon(Self) -> Interval
+pub fn PlannerReport::most_utilized(Self) -> ResourceReport?
+pub fn PlannerReport::occupied_minutes(Self) -> Int
+pub fn PlannerReport::render_bottlenecks(Self, Int) -> String
+pub fn PlannerReport::render_summary(Self) -> String
+pub fn PlannerReport::resource_count(Self) -> Int
+pub fn PlannerReport::resources(Self) -> Array[ResourceReport]
+pub fn PlannerReport::utilization_percent(Self) -> Int
+
+pub enum RequestError {
+  EmptyRequestId
+  NonPositiveDuration(Int)
+  NonPositiveCapacity(Int)
+  NegativeBuffer(Int)
+  EmptyRequiredResource
+} derive(Eq, @debug.Debug)
+
+pub struct RescheduleResult {
+  previous : Allocation
+  replacement : Allocation
+  planner : Planner
+} derive(@debug.Debug)
+pub fn RescheduleResult::planner(Self) -> Planner
+pub fn RescheduleResult::previous(Self) -> Allocation
+pub fn RescheduleResult::replacement(Self) -> Allocation
+
+pub struct Reservation {
+  allocation : Allocation
+  planner : Planner
+} derive(@debug.Debug)
+pub fn Reservation::allocation(Self) -> Allocation
+pub fn Reservation::planner(Self) -> Planner
+
+pub struct ResolvedAvailability {
+  overlay : AvailabilityOverlay
+  available : IntervalSet
+} derive(@debug.Debug)
+pub fn ResolvedAvailability::available(Self) -> IntervalSet
+pub fn ResolvedAvailability::overlay(Self) -> AvailabilityOverlay
+
+pub struct ResourceCalendar {
+  id : String
+  capacity : Int
+  available : IntervalSet
+  blocked : IntervalSet
+} derive(@debug.Debug)
+pub fn ResourceCalendar::availability(Self) -> IntervalSet
+pub fn ResourceCalendar::blocked(Self) -> IntervalSet
+pub fn ResourceCalendar::capacity(Self) -> Int
+pub fn ResourceCalendar::free_within(Self, Interval) -> IntervalSet
+pub fn ResourceCalendar::has_reservation(Self, Interval) -> Bool
+pub fn ResourceCalendar::id(Self) -> String
+pub fn ResourceCalendar::is_free(Self, Interval) -> Bool
+pub fn ResourceCalendar::new(String, Int, IntervalSet) -> Result[Self, ResourceError]
+pub fn ResourceCalendar::release(Self, Interval) -> Result[Self, ResourceError]
+pub fn ResourceCalendar::report(Self, Interval) -> ResourceReport
+pub fn ResourceCalendar::reserve(Self, Interval) -> Result[Self, ResourceError]
+pub fn ResourceCalendar::with_availability_overlay(Self, AvailabilityOverlay) -> Result[Self, OverlayResourceError]
+pub fn ResourceCalendar::with_blocked(Self, IntervalSet) -> Self
+
+pub enum ResourceError {
+  EmptyResourceId
+  NonPositiveCapacity(Int)
+  EmptyAvailability
+  ReservationOutsideAvailability
+  ReservationNotFound
+} derive(Eq, @debug.Debug)
+
+pub struct ResourceReport {
+  resource_id : String
+  capacity : Int
+  available_minutes : Int
+  occupied_minutes : Int
+  free_minutes : Int
+  longest_free_minutes : Int
+  utilization_percent : Int
+  band : UtilizationBand
+} derive(@debug.Debug)
+pub fn ResourceReport::available_minutes(Self) -> Int
+pub fn ResourceReport::band(Self) -> UtilizationBand
+pub fn ResourceReport::capacity(Self) -> Int
+pub fn ResourceReport::capacity_minutes(Self) -> Int
+pub fn ResourceReport::free_minutes(Self) -> Int
+pub fn ResourceReport::free_percent(Self) -> Int
+pub fn ResourceReport::longest_free_minutes(Self) -> Int
+pub fn ResourceReport::occupied_minutes(Self) -> Int
+pub fn ResourceReport::render(Self) -> String
+pub fn ResourceReport::resource_id(Self) -> String
+pub fn ResourceReport::utilization_percent(Self) -> Int
+
+pub struct Suggestion {
+  allocation : Allocation
+  free_window : Interval
+  fragment_count : Int
+} derive(@debug.Debug)
+pub fn Suggestion::allocation(Self) -> Allocation
+pub fn Suggestion::fragment_count(Self) -> Int
+pub fn Suggestion::free_window(Self) -> Interval
+
+pub enum TimelineError {
+  EmptyEventId
+  DuplicateEventId(String)
+} derive(Eq, @debug.Debug)
+
+pub struct TimelineEvent {
+  id : String
+  interval : Interval
+  label : String
+} derive(@debug.Debug)
+pub fn TimelineEvent::from_allocation(Allocation) -> Self
+pub fn TimelineEvent::id(Self) -> String
+pub fn TimelineEvent::interval(Self) -> Interval
+pub fn TimelineEvent::label(Self) -> String
+pub fn TimelineEvent::new(String, Interval, label? : String) -> Result[Self, TimelineError]
+
+pub struct TimelineLayout {
+  positions : Array[TimelinePosition]
+  lane_count : Int
+  conflicts : Array[ConflictPair]
+  concurrency : Array[ConcurrencySegment]
+} derive(@debug.Debug)
+pub fn TimelineLayout::concurrency(Self) -> Array[ConcurrencySegment]
+pub fn TimelineLayout::conflicts(Self) -> Array[ConflictPair]
+pub fn TimelineLayout::lane_count(Self) -> Int
+pub fn TimelineLayout::peak_concurrency(Self) -> Int
+pub fn TimelineLayout::positions(Self) -> Array[TimelinePosition]
+
+pub struct TimelinePosition {
+  event : TimelineEvent
+  lane_index : Int
+  lane_count : Int
+} derive(@debug.Debug)
+pub fn TimelinePosition::event(Self) -> TimelineEvent
+pub fn TimelinePosition::lane_count(Self) -> Int
+pub fn TimelinePosition::lane_index(Self) -> Int
+pub fn TimelinePosition::left_percent(Self) -> Int
+pub fn TimelinePosition::width_percent(Self) -> Int
+
+pub enum UtilizationBand {
+  Idle
+  Light
+  Moderate
+  Busy
+  Saturated
+} derive(Eq, @debug.Debug)
+pub fn UtilizationBand::render(Self) -> String
+
+pub enum Weekday {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+} derive(Eq, @debug.Debug)
+pub fn Weekday::index(Self) -> Int
+pub fn Weekday::render(Self) -> String
+
+pub enum WeeklyError {
+  WindowOutsideDay(Interval)
+  HorizonBeforeWeekStart
+  NonPositiveWeekCount(Int)
+} derive(Eq, @debug.Debug)
+
+pub enum WeeklyResourceError {
+  Weekly(WeeklyError)
+  Resource(ResourceError)
+} derive(Eq, @debug.Debug)
+
+pub struct WeeklyTemplate {
+  windows : Array[WeeklyWindow]
+} derive(@debug.Debug)
+pub fn WeeklyTemplate::availability_within(Self, Int, Interval) -> Result[IntervalSet, WeeklyError]
+pub fn WeeklyTemplate::expand_weeks(Self, Int, Int) -> Result[IntervalSet, WeeklyError]
+pub fn WeeklyTemplate::is_open(Self, Weekday, Int) -> Bool
+pub fn WeeklyTemplate::new(Array[WeeklyWindow]) -> Self
+pub fn WeeklyTemplate::windows(Self) -> Array[WeeklyWindow]
+pub fn WeeklyTemplate::windows_for(Self, Weekday) -> IntervalSet
+
+pub struct WeeklyWindow {
+  day : Weekday
+  window : Interval
+} derive(@debug.Debug)
+pub fn WeeklyWindow::day(Self) -> Weekday
+pub fn WeeklyWindow::new(Weekday, Int, Int) -> Result[Self, WeeklyError]
+pub fn WeeklyWindow::render(Self) -> String
+pub fn WeeklyWindow::window(Self) -> Interval
+
+// Type aliases
+pub type Tick = Int
+
+// Traits
+
