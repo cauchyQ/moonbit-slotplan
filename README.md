@@ -37,6 +37,17 @@ The example books a design review that requires both a meeting room and a
 projector. See [README.mbt.md](README.mbt.md) for the API walkthrough and
 scope notes.
 
+## Install as a dependency
+
+The published package can be added to another MoonBit module with:
+
+```text
+moon add cauchyQ/moonbit-slotplan
+```
+
+Then import `cauchyQ/moonbit-slotplan` from that module's `moon.pkg`; the API
+walkthrough and minimal example are in [README.mbt.md](README.mbt.md).
+
 ## Browser demonstration
 
 The repository also contains a small browser application that uses the real

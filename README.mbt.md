@@ -53,6 +53,17 @@ The runnable example schedules a 45-minute design review requiring a room and
 a projector. It prints both the user-visible event interval and its longer
 reserved envelope.
 
+## Install as a dependency
+
+After publishing, add SlotPlan to another MoonBit module with:
+
+```text
+moon add cauchyQ/moonbit-slotplan
+```
+
+Import `cauchyQ/moonbit-slotplan` in that module's `moon.pkg` before using
+the API below.
+
 ## Browser demonstration
 
 `cmd/web` is a small Rabbita front end compiled to JavaScript. It uses the
