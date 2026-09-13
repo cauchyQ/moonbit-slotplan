@@ -1,0 +1,5 @@
+import {
+  "clhhhhhh/moonbit-slotplan" @slotplan,
+}
+
+pkgtype(kind: "executable")
