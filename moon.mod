@@ -9,13 +9,13 @@
 //   "moonbitlang/x@0.4.6",
 // }
 
-name = "clhhhhhh/moonbit-slotplan"
+name = "cauchyQ/moonbit-slotplan"
 
 version = "0.1.0"
 
 readme = "README.md"
 
-repository = ""
+repository = "https://github.com/cauchyQ/moonbit-slotplan"
 
 license = "Apache-2.0"
 

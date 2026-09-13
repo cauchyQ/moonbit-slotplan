@@ -1,5 +1,5 @@
 import {
-  "clhhhhhh/moonbit-slotplan" @slotplan,
+  "cauchyQ/moonbit-slotplan" @slotplan,
 }
 
 pkgtype(kind: "executable")
